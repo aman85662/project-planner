@@ -88,7 +88,7 @@ const dotenv = require('dotenv');
 const path = require('path');
 const morgan = require('morgan');
 const mongoose = require('mongoose');
-const connectDB = require('./config/db');
+const { connectDB } = require('./config/db');
 const { notFound, errorHandler } = require('./middlewares/errorMiddleware');
 
 // Load environment variables with correct path

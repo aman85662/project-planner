@@ -43,6 +43,7 @@ export const AuthProvider = ({ children }) => {
     setError(null);
     
     try {
+      console.log('Registering with data:', userData);
       const response = await axios.post('/api/users/register', userData);
       const newUser = response.data;
       
@@ -55,7 +56,16 @@ export const AuthProvider = ({ children }) => {
       
       return newUser;
     } catch (err) {
-      const message = err.response?.data?.message || 'Registration failed';
+      console.error('Registration error:', err);
+      
+      let message = 'Registration failed';
+      
+      // Extract the error message from the response if available
+      if (err.response) {
+        console.log('Error response:', err.response.data);
+        message = err.response.data.message || 'An error occurred during registration';
+      }
+      
       setError(message);
       throw new Error(message);
     } finally {
@@ -69,6 +79,7 @@ export const AuthProvider = ({ children }) => {
     setError(null);
     
     try {
+      console.log('Logging in with:', credentials.email);
       const response = await axios.post('/api/users/login', credentials);
       const loggedInUser = response.data;
       
@@ -81,7 +92,16 @@ export const AuthProvider = ({ children }) => {
       
       return loggedInUser;
     } catch (err) {
-      const message = err.response?.data?.message || 'Login failed';
+      console.error('Login error:', err);
+      
+      let message = 'Login failed';
+      
+      // Extract the error message from the response if available
+      if (err.response) {
+        console.log('Error response:', err.response.data);
+        message = err.response.data.message || 'Invalid credentials';
+      }
+      
       setError(message);
       throw new Error(message);
     } finally {
@@ -117,7 +137,15 @@ export const AuthProvider = ({ children }) => {
       
       return updatedUser;
     } catch (err) {
-      const message = err.response?.data?.message || 'Profile update failed';
+      console.error('Profile update error:', err);
+      
+      let message = 'Profile update failed';
+      
+      // Extract the error message from the response if available
+      if (err.response) {
+        message = err.response.data.message || 'An error occurred updating your profile';
+      }
+      
       setError(message);
       throw new Error(message);
     } finally {

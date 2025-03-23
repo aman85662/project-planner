@@ -9,7 +9,12 @@ const RegisterPage = () => {
     email: '',
     password: '',
     confirmPassword: '',
-    role: 'student'
+    role: 'student',
+    enrollmentNumber: '',
+    rollNumber: '',
+    department: '',
+    year: '',
+    phoneNumber: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState('');
@@ -49,6 +54,13 @@ const RegisterPage = () => {
       return false;
     }
     
+    if (formData.role === 'student') {
+      if (!formData.enrollmentNumber || !formData.rollNumber || !formData.department || !formData.year) {
+        setFormError('All student information fields are required');
+        return false;
+      }
+    }
+    
     return true;
   };
   
@@ -61,10 +73,17 @@ const RegisterPage = () => {
     setIsSubmitting(true);
     
     try {
-      // Remove confirmPassword before sending to API
       const { confirmPassword, ...registerData } = formData;
+      
+      if (registerData.role !== 'student') {
+        delete registerData.enrollmentNumber;
+        delete registerData.rollNumber;
+        delete registerData.department;
+        delete registerData.year;
+        delete registerData.phoneNumber;
+      }
+      
       await register(registerData);
-      // Redirect handled by useEffect
     } catch (err) {
       setFormError(err.message || 'Registration failed. Please try again.');
       setIsSubmitting(false);
@@ -167,6 +186,93 @@ const RegisterPage = () => {
             <option value="teacher">Teacher</option>
           </select>
         </div>
+        
+        {formData.role === 'student' && (
+          <>
+            <div className="mb-4">
+              <label htmlFor="enrollmentNumber" className="form-label">
+                Enrollment Number
+              </label>
+              <input
+                id="enrollmentNumber"
+                name="enrollmentNumber"
+                type="text"
+                value={formData.enrollmentNumber}
+                onChange={handleChange}
+                className="form-input"
+                placeholder="Enter enrollment number"
+                required
+              />
+            </div>
+            
+            <div className="mb-4">
+              <label htmlFor="rollNumber" className="form-label">
+                Roll Number
+              </label>
+              <input
+                id="rollNumber"
+                name="rollNumber"
+                type="text"
+                value={formData.rollNumber}
+                onChange={handleChange}
+                className="form-input"
+                placeholder="Enter roll number"
+                required
+              />
+            </div>
+            
+            <div className="mb-4">
+              <label htmlFor="department" className="form-label">
+                Department
+              </label>
+              <input
+                id="department"
+                name="department"
+                type="text"
+                value={formData.department}
+                onChange={handleChange}
+                className="form-input"
+                placeholder="Enter department"
+                required
+              />
+            </div>
+            
+            <div className="mb-4">
+              <label htmlFor="year" className="form-label">
+                Year
+              </label>
+              <select
+                id="year"
+                name="year"
+                value={formData.year}
+                onChange={handleChange}
+                className="form-input"
+                required
+              >
+                <option value="">Select Year</option>
+                <option value="1">1st Year</option>
+                <option value="2">2nd Year</option>
+                <option value="3">3rd Year</option>
+                <option value="4">4th Year</option>
+              </select>
+            </div>
+            
+            <div className="mb-4">
+              <label htmlFor="phoneNumber" className="form-label">
+                Phone Number
+              </label>
+              <input
+                id="phoneNumber"
+                name="phoneNumber"
+                type="tel"
+                value={formData.phoneNumber}
+                onChange={handleChange}
+                className="form-input"
+                placeholder="Enter phone number (optional)"
+              />
+            </div>
+          </>
+        )}
         
         <button
           type="submit"
