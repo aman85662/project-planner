@@ -7,7 +7,8 @@
     "start": "node src/index.js",
     "dev": "nodemon src/index.js",
     "test": "jest",
-    "test:mongo": "node src/utils/mongoTest.js"
+    "test:mongo": "node src/utils/mongoTest.js",
+    "seed": "node src/scripts/seed.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

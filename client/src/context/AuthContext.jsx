@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
+import API, { authAPI } from '../services/api';
 
 // Create context
 const AuthContext = createContext();
@@ -44,17 +45,29 @@ export const AuthProvider = ({ children }) => {
     
     try {
       console.log('Registering with data:', userData);
-      const response = await axios.post('/api/users/register', userData);
-      const newUser = response.data;
+      const response = await authAPI.register(userData);
+      
+      // Make sure response.data contains user data and token
+      if (!response.data || !response.data.token) {
+        throw new Error('Invalid response from server');
+      }
+      
+      const newUser = response.data.data || response.data;
+      
+      // Make sure user object has a token property
+      const userToSave = {
+        ...newUser,
+        token: response.data.token
+      };
       
       // Store user in state and localStorage
-      setUser(newUser);
-      localStorage.setItem('user', JSON.stringify(newUser));
+      setUser(userToSave);
+      localStorage.setItem('user', JSON.stringify(userToSave));
       
       // Set default auth header for axios
-      axios.defaults.headers.common['Authorization'] = `Bearer ${newUser.token}`;
+      axios.defaults.headers.common['Authorization'] = `Bearer ${userToSave.token}`;
       
-      return newUser;
+      return userToSave;
     } catch (err) {
       console.error('Registration error:', err);
       
@@ -80,17 +93,29 @@ export const AuthProvider = ({ children }) => {
     
     try {
       console.log('Logging in with:', credentials.email);
-      const response = await axios.post('/api/users/login', credentials);
-      const loggedInUser = response.data;
+      const response = await authAPI.login(credentials);
+      
+      // Make sure response.data contains user data and token
+      if (!response.data || !response.data.token) {
+        throw new Error('Invalid response from server');
+      }
+      
+      const loggedInUser = response.data.data || response.data;
+      
+      // Make sure user object has a token property
+      const userToSave = {
+        ...loggedInUser,
+        token: response.data.token
+      };
       
       // Store user in state and localStorage
-      setUser(loggedInUser);
-      localStorage.setItem('user', JSON.stringify(loggedInUser));
+      setUser(userToSave);
+      localStorage.setItem('user', JSON.stringify(userToSave));
       
       // Set default auth header for axios
-      axios.defaults.headers.common['Authorization'] = `Bearer ${loggedInUser.token}`;
+      axios.defaults.headers.common['Authorization'] = `Bearer ${userToSave.token}`;
       
-      return loggedInUser;
+      return userToSave;
     } catch (err) {
       console.error('Login error:', err);
       
@@ -125,10 +150,7 @@ export const AuthProvider = ({ children }) => {
     setError(null);
     
     try {
-      const response = await axios.put('/api/users/profile', userData, {
-        headers: { Authorization: `Bearer ${user.token}` }
-      });
-      
+      const response = await authAPI.updateProfile(userData);
       const updatedUser = response.data;
       
       // Update user in state and localStorage

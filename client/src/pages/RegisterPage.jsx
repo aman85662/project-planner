@@ -25,6 +25,7 @@ const RegisterPage = () => {
   // If user is already logged in, redirect
   useEffect(() => {
     if (user) {
+      console.log('User logged in, redirecting:', user);
       const path = user.role === 'teacher' ? '/teacher' : '/student';
       navigate(path, { replace: true });
     }
@@ -73,6 +74,7 @@ const RegisterPage = () => {
     setIsSubmitting(true);
     
     try {
+      // Remove confirmPassword before sending to API
       const { confirmPassword, ...registerData } = formData;
       
       if (registerData.role !== 'student') {
@@ -83,9 +85,15 @@ const RegisterPage = () => {
         delete registerData.phoneNumber;
       }
       
-      await register(registerData);
+      console.log('Submitting registration data:', registerData);
+      const response = await register(registerData);
+      console.log('Registration successful:', response);
+      
+      // The redirect will be handled by the useEffect when user state is updated
     } catch (err) {
+      console.error('Registration error in component:', err);
       setFormError(err.message || 'Registration failed. Please try again.');
+    } finally {
       setIsSubmitting(false);
     }
   };

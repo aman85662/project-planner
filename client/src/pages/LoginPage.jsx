@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@context/AuthContext';
 import LoadingSpinner from '@components/LoadingSpinner';
 
@@ -9,16 +9,13 @@ const LoginPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState('');
   
-  const { login, user, error } = useAuth();
+  const { login, user } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
-  
-  // Get redirect path from location state or default to dashboard
-  const redirectPath = location.state?.from || '/';
   
   // If user is already logged in, redirect
   useEffect(() => {
     if (user) {
+      console.log('User already logged in, redirecting:', user);
       const path = user.role === 'teacher' ? '/teacher' : '/student';
       navigate(path, { replace: true });
     }
@@ -28,7 +25,6 @@ const LoginPage = () => {
     e.preventDefault();
     setFormError('');
     
-    // Simple validation
     if (!email || !password) {
       setFormError('Please enter both email and password');
       return;
@@ -37,10 +33,15 @@ const LoginPage = () => {
     setIsSubmitting(true);
     
     try {
-      await login({ email, password });
+      console.log('Attempting login with email:', email);
+      const response = await login({ email, password });
+      console.log('Login successful:', response);
+      
       // Redirect handled by useEffect
     } catch (err) {
+      console.error('Login error in component:', err);
       setFormError(err.message || 'Login failed. Please check your credentials.');
+    } finally {
       setIsSubmitting(false);
     }
   };

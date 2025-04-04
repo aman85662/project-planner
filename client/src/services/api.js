@@ -1,11 +1,12 @@
 import axios from 'axios';
 
-// Create an axios instance with base URL
+// Create an axios instance with relative URL (will use Vite's proxy)
 const API = axios.create({
-  baseURL: 'http://localhost:8000/api',
+  baseURL: '/api',  // Using relative URL to work with Vite proxy
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true, // Important for cookies
 });
 
 // Request interceptor for adding the auth token
@@ -24,6 +25,8 @@ API.interceptors.request.use(
 API.interceptors.response.use(
   (response) => response,
   (error) => {
+    console.error('API Error:', error);
+    
     // Handle session expiration
     if (error.response && error.response.status === 401) {
       localStorage.removeItem('user');
@@ -37,7 +40,7 @@ API.interceptors.response.use(
 export const authAPI = {
   login: (credentials) => API.post('/users/login', credentials),
   register: (userData) => API.post('/users/register', userData),
-  getProfile: () => API.get('/users/profile'),
+  getProfile: () => API.get('/users/me'),
   updateProfile: (userData) => API.put('/users/profile', userData),
 };
 
@@ -65,6 +68,7 @@ export const projectAPI = {
   deleteMilestone: (projectId, milestoneId) => 
     API.delete(`/projects/${projectId}/milestones/${milestoneId}`),
   addComment: (id, text) => API.post(`/projects/${id}/comments`, { text }),
+  getStudentProjects: (studentId) => API.get(`/projects/student/${studentId}`),
 };
 
 export default API; 

@@ -113,7 +113,14 @@ const PORT = process.env.PORT || 8000;
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
-app.use(cors());
+
+// CORS configuration
+app.use(cors({
+  origin: 'http://localhost:5173', // Update with your frontend URL
+  credentials: true,
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
